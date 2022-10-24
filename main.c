@@ -43,42 +43,21 @@
 #include "cy_utils.h"
 #include "xmc_scu.h"
 
+
 /*******************************************************************************
 * Macros
 *******************************************************************************/
-#ifdef  TARGET_KIT_XMC47_RELAX_V1
-#define VOLTAGE_THRESHOLD 135 //*22.5 mV
-#define INTERVAL 1
-#endif
 
-#ifdef  TARGET_KIT_XMC14_BOOT_001
+#if (UC_SERIES == XMC14)
 #define Brownout_Detection_Interrupt_Handler  IRQ1_Handler
 #define INTERRUPT_PRIORITY_NODE_ID        IRQ1_IRQn
 #define VOLTAGE_THRESHOLD 1 //3V
 #define INTERVAL 0
 #endif
 
-/*******************************************************************************
-* Function Name: NMI_Handler
-********************************************************************************
-* Summary:
-* This is the interrupt handler function for brownout detection for XMC47_RELAX_V1 interrupt.
-*
-* Parameters:
-*  none
-*
-* Return:
-*  void
-*
-*******************************************************************************/
-#ifdef  TARGET_KIT_XMC47_RELAX_V1
-void NMI_Handler(void)
-{
-    /* toggle LED after brownout detected */
-    XMC_GPIO_ToggleOutput(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN);
-    __BKPT(0);
-
-}
+#if (UC_SERIES == XMC47)
+#define VOLTAGE_THRESHOLD 135 //*22.5 mV
+#define INTERVAL 1
 #endif
 
 /*******************************************************************************
@@ -94,12 +73,35 @@ void NMI_Handler(void)
 *  void
 *
 *******************************************************************************/
-#ifdef  TARGET_KIT_XMC14_BOOT_001
+#if (UC_SERIES == XMC14)
 void Brownout_Detection_Interrupt_Handler(void)
 {
     /* User LED toggle due to brownout detection */
     XMC_GPIO_ToggleOutput(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN);
     __BKPT(0);
+}
+#endif
+
+/*******************************************************************************
+* Function Name: NMI_Handler
+********************************************************************************
+* Summary:
+* This is the interrupt handler function for brownout detection for XMC47_RELAX_V1 interrupt.
+*
+* Parameters:
+*  none
+*
+* Return:
+*  void
+*
+*******************************************************************************/
+#if (UC_SERIES == XMC47)
+void NMI_Handler(void)
+{
+    /* toggle LED after brownout detected */
+    XMC_GPIO_ToggleOutput(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN);
+    __BKPT(0);
+
 }
 #endif
 
@@ -132,13 +134,13 @@ int main(void)
     XMC_GPIO_ToggleOutput(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN);
 
     /* Enable interrupt for brownout */
-    #ifdef  TARGET_KIT_XMC47_RELAX_V1
-    XMC_SCU_TRAP_Enable(XMC_SCU_TRAP_BROWNOUT);
-    #endif
-
-    #ifdef  TARGET_KIT_XMC14_BOOT_001
+    #if (UC_SERIES == XMC14)
     XMC_SCU_INTERRUPT_EnableEvent(XMC_SCU_INTERRUPT_EVENT_VDDPI);
     NVIC_EnableIRQ(INTERRUPT_PRIORITY_NODE_ID);
+    #endif
+
+    #if (UC_SERIES == XMC47)
+    XMC_SCU_TRAP_Enable(XMC_SCU_TRAP_BROWNOUT);
     #endif
 
     /* set voltage threshold for the supply voltage and the interval value to define the frequency of monitoring of the actual supply voltage */
