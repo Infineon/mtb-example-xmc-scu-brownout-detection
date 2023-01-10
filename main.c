@@ -48,6 +48,13 @@
 * Macros
 *******************************************************************************/
 
+#if (UC_SERIES == XMC11) || (UC_SERIES == XMC12) || (UC_SERIES == XMC13)
+#define Brownout_Detection_Interrupt_Handler  SCU_1_IRQHandler
+#define INTERRUPT_PRIORITY_NODE_ID        SCU_1_IRQn
+#define VOLTAGE_THRESHOLD 1 //3V
+#define INTERVAL 0
+#endif
+
 #if (UC_SERIES == XMC14)
 #define Brownout_Detection_Interrupt_Handler  IRQ1_Handler
 #define INTERRUPT_PRIORITY_NODE_ID        IRQ1_IRQn
@@ -55,7 +62,7 @@
 #define INTERVAL 0
 #endif
 
-#if (UC_SERIES == XMC47)
+#if (UC_SERIES == XMC48) || (UC_SERIES == XMC47) || (UC_SERIES == XMC45) || (UC_SERIES == XMC44) || (UC_SERIES == XMC43) || (UC_SERIES == XMC42)
 #define VOLTAGE_THRESHOLD 135 //*22.5 mV
 #define INTERVAL 1
 #endif
@@ -73,7 +80,7 @@
 *  void
 *
 *******************************************************************************/
-#if (UC_SERIES == XMC14)
+#if (UC_SERIES == XMC11) || (UC_SERIES == XMC12) || (UC_SERIES == XMC13) || (UC_SERIES == XMC14)
 void Brownout_Detection_Interrupt_Handler(void)
 {
     /* User LED toggle due to brownout detection */
@@ -95,7 +102,7 @@ void Brownout_Detection_Interrupt_Handler(void)
 *  void
 *
 *******************************************************************************/
-#if (UC_SERIES == XMC47)
+#if (UC_SERIES == XMC48) || (UC_SERIES == XMC47) || (UC_SERIES == XMC45) || (UC_SERIES == XMC44) || (UC_SERIES == XMC43) || (UC_SERIES == XMC42)
 void NMI_Handler(void)
 {
     /* toggle LED after brownout detected */
@@ -134,12 +141,12 @@ int main(void)
     XMC_GPIO_ToggleOutput(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN);
 
     /* Enable interrupt for brownout */
-    #if (UC_SERIES == XMC14)
+    #if (UC_SERIES == XMC11) || (UC_SERIES == XMC12) || (UC_SERIES == XMC13) || (UC_SERIES == XMC14)
     XMC_SCU_INTERRUPT_EnableEvent(XMC_SCU_INTERRUPT_EVENT_VDDPI);
     NVIC_EnableIRQ(INTERRUPT_PRIORITY_NODE_ID);
     #endif
 
-    #if (UC_SERIES == XMC47)
+    #if (UC_SERIES == XMC48) || (UC_SERIES == XMC47) || (UC_SERIES == XMC45) || (UC_SERIES == XMC44) || (UC_SERIES == XMC43) || (UC_SERIES == XMC42)
     XMC_SCU_TRAP_Enable(XMC_SCU_TRAP_BROWNOUT);
     #endif
 
